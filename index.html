@@ -14,22 +14,32 @@
     box-sizing:border-box;
 }
 
+html,
+body{
+    height:100%;
+}
+
 body{
     background:#000;
     overflow:hidden;
     font-family:Arial, Helvetica, sans-serif;
 }
 
+/* Bakgrunnsbilde */
+
 #background{
     position:fixed;
     inset:0;
+
     background-size:cover;
     background-position:center center;
+
     opacity:0;
     transform:scale(1.08);
+
     transition:
-        opacity 0.15s ease,
-        transform 0.5s ease;
+        opacity 0.4s ease,
+        transform 1.5s ease;
 }
 
 #background.show{
@@ -37,41 +47,56 @@ body{
     transform:scale(1);
 }
 
+/* Mørk film-overlay */
+
 .overlay{
     position:fixed;
     inset:0;
+
     background:
-        radial-gradient(circle,
-        rgba(0,0,0,0.2),
-        rgba(0,0,0,0.88));
+        radial-gradient(
+            circle,
+            rgba(0,0,0,0.15),
+            rgba(0,0,0,0.88)
+        );
 }
+
+/* Tekst */
 
 .content{
     position:fixed;
     inset:0;
+
     display:flex;
     flex-direction:column;
     justify-content:center;
     align-items:center;
+
     z-index:10;
 }
 
 h1{
     color:white;
+
     font-size:clamp(3rem,8vw,6rem);
-    letter-spacing:0.5rem;
+
     text-transform:uppercase;
+    letter-spacing:0.6rem;
 
     text-shadow:
-        0 0 10px rgba(255,255,255,.2),
+        0 0 10px rgba(255,255,255,.25),
         0 0 40px rgba(255,255,255,.15);
 }
 
 .subtitle{
-    color:#d0d0d0;
     margin-top:15px;
-    letter-spacing:0.4rem;
+
+    color:#cccccc;
+
     text-transform:uppercase;
+    letter-spacing:0.5rem;
+
+    font-size:1rem;
 }
 
 </style>
@@ -80,6 +105,7 @@ h1{
 <body>
 
 <div id="background"></div>
+
 <div class="overlay"></div>
 
 <div class="content">
@@ -89,9 +115,11 @@ h1{
 
 <script>
 
-// ---------------------------------------------------
-// Vanlige blink (80%)
-// ---------------------------------------------------
+/*
+--------------------------------------------------
+VANLIGE BILDER (75 %)
+--------------------------------------------------
+*/
 
 const commonImages = [
     "beer.jpg",
@@ -100,71 +128,143 @@ const commonImages = [
     "group.jpg"
 ];
 
-// ---------------------------------------------------
-// Sjeldne blink (15%)
-// ---------------------------------------------------
+/*
+--------------------------------------------------
+SJELDNE BILDER (22 %)
+--------------------------------------------------
+*/
 
 const rareImages = [
     "toilet.jpg",
     "fuel.jpg"
 ];
 
-// ---------------------------------------------------
-// Legendariske blink (5%)
-// ---------------------------------------------------
+/*
+--------------------------------------------------
+LEGENDARISKE BILDER (3 %)
+--------------------------------------------------
+*/
 
 const legendaryImages = [
     "finger.jpg",
     "hat.jpg"
 ];
 
-const bg = document.getElementById("background");
+const background =
+    document.getElementById("background");
 
 function pickImage() {
 
     const roll = Math.random() * 100;
 
-    if (roll < 80) {
-        return commonImages[
-            Math.floor(Math.random()*commonImages.length)
-        ];
+    // 75%
+
+    if (roll < 75) {
+
+        return {
+            image:
+                commonImages[
+                    Math.floor(
+                        Math.random() *
+                        commonImages.length
+                    )
+                ],
+            type:"common"
+        };
     }
 
-    if (roll < 95) {
-        return rareImages[
-            Math.floor(Math.random()*rareImages.length)
-        ];
+    // 22%
+
+    if (roll < 97) {
+
+        return {
+            image:
+                rareImages[
+                    Math.floor(
+                        Math.random() *
+                        rareImages.length
+                    )
+                ],
+            type:"rare"
+        };
     }
 
-    return legendaryImages[
-        Math.floor(Math.random()*legendaryImages.length)
-    ];
+    // 3%
+
+    return {
+
+        image:
+            legendaryImages[
+                Math.floor(
+                    Math.random() *
+                    legendaryImages.length
+                )
+            ],
+
+        type:"legendary"
+    };
 }
 
-function flash() {
+function flashImage() {
 
-    const image = pickImage();
+    const result = pickImage();
 
-    bg.style.backgroundImage =
-        `url('${image}')`;
+    background.style.backgroundImage =
+        `url("${result.image}")`;
 
-    bg.classList.add("show");
+    background.classList.add("show");
 
-    const duration =
-        120 + Math.random()*180;
+    let duration;
+
+    if (result.type === "common") {
+
+        duration =
+            1200 +
+            Math.random() * 600;
+
+    }
+
+    else if (result.type === "rare") {
+
+        duration = 800;
+
+    }
+
+    else {
+
+        duration = 500;
+
+    }
 
     setTimeout(() => {
-        bg.classList.remove("show");
+
+        background.classList.remove("show");
+
     }, duration);
 
     const nextFlash =
-        4000 + Math.random()*12000;
 
-    setTimeout(flash, nextFlash);
+        6000 +
+
+        Math.random() * 9000;
+
+    setTimeout(
+        flashImage,
+        nextFlash
+    );
 }
 
-setTimeout(flash, 5000);
-    
+/*
+--------------------------------------------------
+FØRSTE BLINK
+--------------------------------------------------
+*/
+
+setTimeout(
+    flashImage,
+    6000
+);
+
 </script>
 
 </body>
