@@ -25,13 +25,14 @@ body{
     font-family:Arial, Helvetica, sans-serif;
 }
 
-/* BILDER */
+/* BILDE */
 
 #background{
     position:fixed;
     inset:0;
 
     background-size:cover;
+    background-position:center center;
     background-repeat:no-repeat;
 
     opacity:0;
@@ -47,7 +48,7 @@ body{
     transform:scale(1);
 }
 
-/* VHS-STØY */
+/* VHS STØY */
 
 .noise{
     position:fixed;
@@ -80,8 +81,11 @@ body{
 .vhs{
     position:fixed;
     inset:0;
+
     pointer-events:none;
+
     z-index:4;
+
     opacity:0;
 }
 
@@ -90,8 +94,8 @@ body{
 }
 
 .vhs::before{
-
     content:"";
+
     position:absolute;
     inset:0;
 
@@ -106,8 +110,8 @@ body{
 }
 
 .vhs::after{
-
     content:"";
+
     position:absolute;
     inset:0;
 
@@ -138,10 +142,9 @@ body{
     }
 }
 
-/* FILM-VIGNETT */
+/* VIGNETT */
 
 .overlay{
-
     position:fixed;
     inset:0;
 
@@ -156,7 +159,6 @@ body{
 /* TEKST */
 
 .content{
-
     position:fixed;
     inset:0;
 
@@ -169,7 +171,6 @@ body{
 }
 
 h1{
-
     color:white;
 
     font-size:clamp(3rem,8vw,7rem);
@@ -182,7 +183,6 @@ h1{
 }
 
 .subtitle{
-
     color:#d0d0d0;
 
     margin-top:15px;
@@ -193,7 +193,6 @@ h1{
 }
 
 .enter{
-
     margin-top:40px;
 
     padding:12px 28px;
@@ -208,9 +207,7 @@ h1{
 }
 
 .enter:hover{
-
     background:rgba(255,255,255,.08);
-
 }
 
 .hidden{
@@ -244,89 +241,68 @@ h1{
 
 </div>
 
-<audio id="staticSound" preload="auto">
-    <source src="static.mp3" type="audio/mpeg">
-</audio>
-
 <script>
 
-/* ------------------------------
-KORTSTOKK
------------------------------- */
+/* --------------------- */
+/* BILDER                */
+/* --------------------- */
 
 const images = [
 
-    {
-        file:"beer.jpg",
-        type:"common"
-    },
+    { file:"beer.jpg",   type:"common" },
+    { file:"boat.jpg",   type:"common" },
+    { file:"table.jpg",  type:"common" },
+    { file:"group.jpg",  type:"common" },
 
-    {
-        file:"boat.jpg",
-        type:"common"
-    },
+    { file:"toilet.jpg", type:"rare" },
+    { file:"fuel.jpg",   type:"rare" },
 
-    {
-        file:"table.jpg",
-        type:"common"
-    },
-
-    {
-        file:"group.jpg",
-        type:"common"
-    },
-
-    {
-        file:"toilet.jpg",
-        type:"rare"
-    },
-
-    {
-        file:"fuel.jpg",
-        type:"rare"
-    },
-
-    {
-        file:"finger.jpg",
-        type:"legendary"
-    },
-
-    {
-        file:"hat.jpg",
-        type:"legendary"
-    }
+    { file:"finger.jpg", type:"legendary" },
+    { file:"hat.jpg",    type:"legendary" }
 
 ];
 
+/* --------------------- */
+/* ELEMENTER             */
+/* --------------------- */
+
 const background =
-    document.getElementById("background");
+    document.getElementById(
+        "background"
+    );
 
 const vhs =
-    document.getElementById("vhs");
-
-const staticSound =
-    document.getElementById("staticSound");
+    document.getElementById(
+        "vhs"
+    );
 
 const startButton =
-    document.getElementById("startButton");
+    document.getElementById(
+        "startButton"
+    );
+
+/* --------------------- */
+/* KORTSTOKK             */
+/* --------------------- */
 
 let deck = [];
 
-/* ------------------------------
-BLAND KORTSTOKKEN
------------------------------- */
-
 function shuffle(array){
 
-    for(let i=array.length-1;i>0;i--){
+    for(
+        let i=array.length-1;
+        i>0;
+        i--
+    ){
 
         const j =
             Math.floor(
-                Math.random()*(i+1)
+                Math.random() *
+                (i+1)
             );
 
-        [array[i],array[j]] =
-        [array[j],array[i]];
+        [array[i], array[j]] =
+        [array[j], array[i]];
     }
 
     return array;
@@ -334,41 +310,26 @@ function shuffle(array){
 
 function refillDeck(){
 
-    deck = shuffle([...images]);
-
+    deck =
+        shuffle(
+            [...images]
+        );
 }
 
 function drawCard(){
 
-    if(deck.length === 0){
-
+    if(
+        deck.length === 0
+    ){
         refillDeck();
-
     }
 
     return deck.pop();
 }
 
-/* ------------------------------
-TV-SKURRING
------------------------------- */
-
-function playNoise(volume){
-
-    staticSound.pause();
-
-    staticSound.currentTime = 0;
-
-    staticSound.volume = volume;
-
-    staticSound.play()
-        .catch(()=>{});
-
-}
-
-/* ------------------------------
-VIS BILDE
------------------------------- */
+/* --------------------- */
+/* VIS BILDE             */
+/* --------------------- */
 
 function flashImage(){
 
@@ -379,7 +340,7 @@ function flashImage(){
         `url('${card.file}')`;
 
     background.style.backgroundPosition =
-        `${Math.random()*100}% ${Math.random()*100}%`;
+        "center center";
 
     background.classList.add(
         "show"
@@ -390,34 +351,34 @@ function flashImage(){
     );
 
     let duration;
-    let volume;
 
-    if(card.type === "common"){
+    if(
+        card.type ===
+        "common"
+    ){
 
         duration =
             2200 +
-            Math.random()*1000;
+            Math.random() * 1000;
 
-        volume = 0.35;
     }
 
-    else if(card.type === "rare"){
+    else if(
+        card.type ===
+        "rare"
+    ){
 
         duration =
             1100 +
-            Math.random()*500;
+            Math.random() * 500;
 
-        volume = 0.55;
     }
 
     else{
 
         duration = 700;
 
-        volume = 0.8;
     }
-
-    playNoise(volume);
 
     setTimeout(()=>{
 
@@ -439,7 +400,7 @@ function flashImage(){
 
         2000 +
 
-        Math.random()*4000;
+        Math.random() * 4000;
 
     setTimeout(
         flashImage,
@@ -447,24 +408,24 @@ function flashImage(){
     );
 }
 
-/* ------------------------------
-START
------------------------------- */
+/* --------------------- */
+/* START                 */
+/* --------------------- */
 
-startButton
-.addEventListener(
-"click",
-()=>{
+startButton.addEventListener(
+    "click",
+    () => {
 
-    startButton.classList.add(
-        "hidden"
-    );
+        startButton.classList.add(
+            "hidden"
+        );
 
-    refillDeck();
+        refillDeck();
 
-    flashImage();
+        flashImage();
 
-});
+    }
+);
 
 </script>
 
