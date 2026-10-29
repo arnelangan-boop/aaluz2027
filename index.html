@@ -1,8 +1,258 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>ÅLUZ 2027</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+}
+
+body{
+    background:#000;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+/* BILDER */
+
+#background{
+    position:fixed;
+    inset:0;
+
+    background-size:cover;
+    background-repeat:no-repeat;
+
+    opacity:0;
+    transform:scale(1.08);
+
+    transition:
+        opacity .4s ease,
+        transform 1.5s ease;
+}
+
+#background.show{
+    opacity:.92;
+    transform:scale(1);
+}
+
+/* VHS-STØY */
+
+.noise{
+    position:fixed;
+    inset:0;
+
+    pointer-events:none;
+
+    background-image:
+    repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,.03) 0px,
+        rgba(255,255,255,.03) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+
+    animation:flicker .12s infinite;
+}
+
+@keyframes flicker{
+
+    0%{opacity:.10;}
+    50%{opacity:.04;}
+    100%{opacity:.10;}
+
+}
+
+/* VHS GLITCH */
+
+.vhs{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:4;
+    opacity:0;
+}
+
+.vhs.active{
+    opacity:1;
+}
+
+.vhs::before{
+
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+    repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,.05) 0px,
+        rgba(255,255,255,.05) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+}
+
+.vhs::after{
+
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:
+    linear-gradient(
+        90deg,
+        rgba(255,0,0,.04),
+        transparent 35%,
+        rgba(0,255,255,.05) 70%,
+        transparent
+    );
+
+    animation:glitchShift .12s infinite;
+}
+
+@keyframes glitchShift{
+
+    0%{
+        transform:translateX(-4px);
+    }
+
+    50%{
+        transform:translateX(3px);
+    }
+
+    100%{
+        transform:translateX(-2px);
+    }
+}
+
+/* FILM-VIGNETT */
+
+.overlay{
+
+    position:fixed;
+    inset:0;
+
+    background:
+    radial-gradient(
+        circle,
+        rgba(0,0,0,.12),
+        rgba(0,0,0,.92)
+    );
+}
+
+/* TEKST */
+
+.content{
+
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    z-index:10;
+}
+
+h1{
+
+    color:white;
+
+    font-size:clamp(3rem,8vw,7rem);
+
+    letter-spacing:.6rem;
+
+    text-shadow:
+        0 0 15px rgba(255,255,255,.25),
+        0 0 50px rgba(255,255,255,.10);
+}
+
+.subtitle{
+
+    color:#d0d0d0;
+
+    margin-top:15px;
+
+    letter-spacing:.45rem;
+
+    text-transform:uppercase;
+}
+
+.enter{
+
+    margin-top:40px;
+
+    padding:12px 28px;
+
+    border:1px solid rgba(255,255,255,.3);
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.enter:hover{
+
+    background:rgba(255,255,255,.08);
+
+}
+
+.hidden{
+    display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="background"></div>
+
+<div id="vhs" class="vhs"></div>
+
+<div class="noise"></div>
+
+<div class="overlay"></div>
+
+<div class="content">
+
+    <h1>ÅLUZ 2027</h1>
+
+    <div class="subtitle">
+        soon
+    </div>
+
+    <div id="startButton" class="enter">
+        ENTER
+    </div>
+
+</div>
+
+<audio id="staticSound" preload="auto">
+    <source src="static.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 
-/* -------------------------------- */
-/* BILDEBIBLIOTEK */
-/* -------------------------------- */
+/* ------------------------------
+KORTSTOKK
+------------------------------ */
 
 const images = [
 
@@ -48,10 +298,6 @@ const images = [
 
 ];
 
-/* -------------------------------- */
-/* ELEMENTER */
-/* -------------------------------- */
-
 const background =
     document.getElementById("background");
 
@@ -64,50 +310,37 @@ const staticSound =
 const startButton =
     document.getElementById("startButton");
 
-/* -------------------------------- */
-/* BLAND KORTSTOKK */
-/* -------------------------------- */
+let deck = [];
 
-function shuffle(array) {
+/* ------------------------------
+BLAND KORTSTOKKEN
+------------------------------ */
 
-    for (
-        let i = array.length - 1;
-        i > 0;
-        i--
-    ) {
+function shuffle(array){
+
+    for(let i=array.length-1;i>0;i--){
 
         const j =
             Math.floor(
-                Math.random() *
-                (i + 1)
+                Math.random()*(i+1)
             );
 
-        [array[i], array[j]] =
-        [array[j], array[i]];
+        [array[i],array[j]] =
+        [array[j],array[i]];
     }
 
     return array;
 }
 
-let deck = [];
+function refillDeck(){
 
-function refillDeck() {
+    deck = shuffle([...images]);
 
-    deck =
-        shuffle(
-            [...images]
-        );
 }
 
-/* -------------------------------- */
-/* HENT NESTE BILDE */
-/* -------------------------------- */
+function drawCard(){
 
-function drawCard() {
-
-    if (
-        deck.length === 0
-    ) {
+    if(deck.length === 0){
 
         refillDeck();
 
@@ -116,30 +349,11 @@ function drawCard() {
     return deck.pop();
 }
 
-/* -------------------------------- */
-/* TV-GLITCH */
-/* -------------------------------- */
+/* ------------------------------
+TV-SKURRING
+------------------------------ */
 
-function activateGlitch() {
-
-    vhs.classList.add(
-        "active"
-    );
-
-    setTimeout(() => {
-
-        vhs.classList.remove(
-            "active"
-        );
-
-    }, 1000);
-}
-
-/* -------------------------------- */
-/* SPILL SKURRING */
-/* -------------------------------- */
-
-function playNoise(volume) {
+function playNoise(volume){
 
     staticSound.pause();
 
@@ -148,14 +362,15 @@ function playNoise(volume) {
     staticSound.volume = volume;
 
     staticSound.play()
-        .catch(() => {});
+        .catch(()=>{});
+
 }
 
-/* -------------------------------- */
-/* VIS BILDE */
-/* -------------------------------- */
+/* ------------------------------
+VIS BILDE
+------------------------------ */
 
-function flashImage() {
+function flashImage(){
 
     const card =
         drawCard();
@@ -170,55 +385,55 @@ function flashImage() {
         "show"
     );
 
-    activateGlitch();
+    vhs.classList.add(
+        "active"
+    );
 
     let duration;
     let volume;
 
-    if (
-        card.type ===
-        "common"
-    ) {
+    if(card.type === "common"){
 
         duration =
             2200 +
             Math.random()*1000;
 
         volume = 0.35;
-
     }
 
-    else if (
-        card.type ===
-        "rare"
-    ) {
+    else if(card.type === "rare"){
 
         duration =
             1100 +
             Math.random()*500;
 
         volume = 0.55;
-
     }
 
-    else {
+    else{
 
-        duration =
-            700;
+        duration = 700;
 
-        volume = 0.80;
-
+        volume = 0.8;
     }
 
     playNoise(volume);
 
-    setTimeout(() => {
+    setTimeout(()=>{
 
         background.classList.remove(
             "show"
         );
 
     }, duration);
+
+    setTimeout(()=>{
+
+        vhs.classList.remove(
+            "active"
+        );
+
+    }, duration + 200);
 
     const nextFlash =
 
@@ -232,23 +447,26 @@ function flashImage() {
     );
 }
 
-/* -------------------------------- */
-/* START */
-/* -------------------------------- */
+/* ------------------------------
+START
+------------------------------ */
 
-startButton.addEventListener(
-    "click",
-    () => {
+startButton
+.addEventListener(
+"click",
+()=>{
 
-        startButton.classList.add(
-            "hidden"
-        );
+    startButton.classList.add(
+        "hidden"
+    );
 
-        refillDeck();
+    refillDeck();
 
-        flashImage();
+    flashImage();
 
-    }
-);
+});
 
 </script>
+
+</body>
+</html>
